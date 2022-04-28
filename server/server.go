@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,46 +11,61 @@ func SetHandlers() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/date", http.StatusFound)
 	})
-	http.HandleFunc("/date", getDate)
-	http.HandleFunc("/time", getTime)
-	http.HandleFunc("/weekday", getWeekday)
 
-	http.HandleFunc("/day", getDay)
-	http.HandleFunc("/month", getMonth)
-	http.HandleFunc("/year", getYear)
+	yearHandlerFunc := getHandlerFuncWithTZ(Year, YearLoc)
+	monthHandlerFunc := getHandlerFuncWithTZ(Month, MonthLoc)
+	dayHandlerFunc := getHandlerFuncWithTZ(Day, DayLoc)
+
+	dateHandlerFunc := getHandlerFuncWithTZ(Date, DayLoc)
+	timeHandlerFunc := getHandlerFuncWithTZ(Time, TimeLoc)
+	weekdayHandlerFunc := getHandlerFuncWithTZ(Weekday, WeekdayLoc)
+
+	http.HandleFunc("/date", dateHandlerFunc)
+	http.HandleFunc("/time", timeHandlerFunc)
+	http.HandleFunc("/weekday", weekdayHandlerFunc)
+
+	http.HandleFunc("/day", dayHandlerFunc)
+	http.HandleFunc("/month", monthHandlerFunc)
+	http.HandleFunc("/year", yearHandlerFunc)
 }
 
-func getDate(w http.ResponseWriter, r *http.Request) {
-	year, month, day := time.Now().Date()
+func getHandlerFuncWithTZ(get func() string, getLoc func(*time.Location) string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte("Some internal error"))
+			log.Println("getYear: %w", err)
+			return
+		}
 
-	r.ParseForm()
-	v := r.Form.Get("var")
-	fmt.Println(v)
+		tz_str := r.Form.Get("tz")
 
-	w.Write([]byte(fmt.Sprintf("%02d.%02d.%d", day, month, year)))
-}
+		var data string
+		if tz_str == "" {
+			data = get()
+		} else {
+			var (
+				tz  int
+				err error
+			)
 
-func getTime(w http.ResponseWriter, r *http.Request) {
-	hour, min, sec := time.Now().Clock()
-	w.Write([]byte(fmt.Sprintf("%02d:%02d:%02d", hour, min, sec)))
-}
+			if tz, err = strconv.Atoi(tz_str); err != nil {
+				w.WriteHeader(400)
+				w.Write([]byte("Failed to read timezone"))
+				return
+			}
 
-func getWeekday(w http.ResponseWriter, r *http.Request) {
-	cur_time := time.Now().Weekday().String()
-	w.Write([]byte(cur_time))
-}
+			if tz > 12 || tz < -12 {
+				w.WriteHeader(400)
+				w.Write([]byte("Failed to read timezone"))
+				return
+			}
 
-func getDay(w http.ResponseWriter, r *http.Request) {
-	cur_time := strconv.Itoa(time.Now().Day())
-	w.Write([]byte(cur_time))
-}
+			loc := time.FixedZone("", tz*3600)
 
-func getMonth(w http.ResponseWriter, r *http.Request) {
-	cur_time := time.Now().Month().String()
-	w.Write([]byte(cur_time))
-}
+			data = getLoc(loc)
+		}
 
-func getYear(w http.ResponseWriter, r *http.Request) {
-	cur_time := strconv.Itoa(time.Now().Year())
-	w.Write([]byte(cur_time))
+		w.Write([]byte(data))
+	}
 }
