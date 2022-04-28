@@ -65,3 +65,11 @@ func Year() string {
 func YearLoc(loc *time.Location) string {
 	return strconv.Itoa(NowLoc(loc).Year())
 }
+
+func Unix() string {
+	return strconv.Itoa(int(time.Now().Unix()))
+}
+
+func UnixLoc(loc *time.Location) string {
+	return strconv.Itoa(int(NowLoc(loc).Unix()))
+}

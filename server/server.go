@@ -20,6 +20,8 @@ func SetHandlers() {
 	timeHandlerFunc := getHandlerFuncWithTZ(Time, TimeLoc)
 	weekdayHandlerFunc := getHandlerFuncWithTZ(Weekday, WeekdayLoc)
 
+	unixHandlerFunc := getHandlerFuncWithTZ(Unix, UnixLoc)
+
 	http.HandleFunc("/date", dateHandlerFunc)
 	http.HandleFunc("/time", timeHandlerFunc)
 	http.HandleFunc("/weekday", weekdayHandlerFunc)
@@ -27,6 +29,8 @@ func SetHandlers() {
 	http.HandleFunc("/day", dayHandlerFunc)
 	http.HandleFunc("/month", monthHandlerFunc)
 	http.HandleFunc("/year", yearHandlerFunc)
+
+	http.HandleFunc("/unix", unixHandlerFunc)
 }
 
 func getHandlerFuncWithTZ(get func() string, getLoc func(*time.Location) string) http.HandlerFunc {
