@@ -1,0 +1,113 @@
+openapi: 3.0.2
+
+info:
+  title: DateTime
+  version: "1.0"
+  
+paths:
+  /time:
+    get:
+      description: Get current time
+      responses:
+        '200':
+          description: Get current time
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+  
+  /date:
+    get:
+      description: Get current date
+      responses:
+        '200':
+          description: Get current date
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+      
+  /day:
+    get:
+      description: Get current day
+      responses:
+        '200':
+          description: Get current day
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+          
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+      
+  /weekday:
+    get:
+      description: Get current weekday
+      responses:
+        '200':
+          description: Get current weekday
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+          
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+      
+      
+  /month:
+    get:
+      description: Get current month
+      responses:
+        '200':
+          description: Get current month
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+          
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+  
+  /year:
+    get:
+      description: Get current day
+      responses:
+        '200':
+          description: Get current day
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+          
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+      
+  /unix:
+    get:
+      description: Get current unix time
+      responses:
+        '200':
+          description: Get current unix time
+              
+        '400':
+          $ref: '#/components/responses/InvalidTZ'
+          
+      parameters:
+      - $ref: '#/components/parameters/tzParam'
+      
+        
+components:
+  parameters:
+    tzParam:
+      in: query
+      name: tz
+      description: Timezone
+      schema:
+        type: integer
+  responses:
+    InvalidTZ:
+      description: Invalid timezone
+      
+      
+                  
+                  
